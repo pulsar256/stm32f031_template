@@ -12,8 +12,6 @@ OBJECTS  = main.o systick_delay.o usart1.o xprintf.o
 OBJECTS += startup_stm32f030.o system_stm32f0xx.o stm32f0xx_rcc.o stm32f0xx_gpio.o 
 OBJECTS += stm32f0xx_usart.o stm32f0xx_spi.o stm32f0xx_dma.o stm32f0xx_misc.o
 
-# Use 'launchpad.net/gcc-arm-embedded' version for a complete toolchain setup
-TOOLCHAIN_FOLDER = /Users/kehribar/gcc-arm-none-eabi-4_9-2015q2/bin/
 
 #------------------------------------------------------------------------------
 # Almost nothing to play with down there ... Don't change.
@@ -43,7 +41,7 @@ LDFLAGS  = $(COMMONFLAGS) $(MCUFLAGS) -fno-exceptions
 LDFLAGS += -fdata-sections -nostartfiles -Wl,--gc-sections,-T$(LDSCRIPT),-Map=$(OBJDIR)/main.map
 
 # Executables
-ARCH   = $(TOOLCHAIN_FOLDER)arm-none-eabi
+ARCH   = arm-none-eabi
 CC     = $(ARCH)-gcc
 LD     = $(ARCH)-ld -v
 AS     = $(ARCH)-as
