@@ -49,6 +49,8 @@ static void midi_controlMessageHandler(const uint8_t id, const uint8_t data);
 static void midi_noteOnMessageHandler(const uint8_t note,const uint8_t velocity);
 static int16_t envelope_iterate(t_envelope* env, const t_envSetting* setting, const uint16_t maxVal);
 static int32_t fm_iterate(t_key* key, const int16_t depth_fm, const uint16_t depth_amp, const uint16_t depth_mod);
+static inline int32_t find_free_note();
+
 /*---------------------------------------------------------------------------*/
 int main(void)
 { 
@@ -367,22 +369,19 @@ static void midi_noteOnMessageHandler(const uint8_t note,const uint8_t velocity)
   /* Lokup table has limited range */
   if((note > 20) && (note < 109))
   {
-    uint8_t k;
+    uint8_t k = find_free_note();
 
-    /* Search for an silent empty slot */
-    for (k = 0; k < MAX_VOICE; ++k)
+    if(k >=0)
     {
-      if((voice[k].lastnote == 0) && (voice[k].noteState == NOTE_SILENT))
-      {               
-        voice[k].freqTone = noteToFreq[note - 21];
-        voice[k].freqMod = S16S16MulShift8(voice[k].freqTone, g_modulationIndex);        
-        voice[k].lastnote = note;
-        voice[k].keyVelocity = log_lut[velocity];        
-        voice[k].maxModulation = (voice[k].keyVelocity >> 6);
-        voice[k].noteState = NOTE_TRIGGER; 
-        return;         
-      }
-    }    
+      voice[k].freqTone = noteToFreq[note - 21];
+      voice[k].freqMod = S16S16MulShift8(voice[k].freqTone, g_modulationIndex);
+      voice[k].lastnote = note;
+      voice[k].keyVelocity = log_lut[velocity];
+      voice[k].maxModulation = (voice[k].keyVelocity >> 6);
+      voice[k].noteState = NOTE_TRIGGER;
+      return;
+    }
+
   }  
 }
 /*---------------------------------------------------------------------------*/
@@ -400,6 +399,28 @@ static void midi_noteOffMessageHandler(const uint8_t note)
       break;
     }
   }          
+}
+/*---------------------------------------------------------------------------*/
+/**
+ * Returns the array index of the next available, free node or -1 if all
+ * voices are busy.
+ */
+static inline int32_t find_free_note()
+{
+  uint8_t k;
+
+  // first, try to use true free slot
+  for (k = 0; k < MAX_VOICE; ++k)
+    if((voice[k].lastnote == 0) && (voice[k].noteState == NOTE_SILENT))
+      return k;
+
+  // fallback to first decaying note
+  // todo: use the oldest note to kill
+  for (k = 0; k < MAX_VOICE; ++k)
+    if((voice[k].noteState == NOTE_DECAY))
+      return k;
+
+  return -1;
 }
 /*---------------------------------------------------------------------------*/
 static void hardware_init()
