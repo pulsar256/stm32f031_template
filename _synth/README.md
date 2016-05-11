@@ -1,6 +1,6 @@
 # Firmware for "polyphonic-fm-synthesizer"
 
-Fimrware for the "polyphonic-fm-synthesizer" reference platform:
+Firmware for the "polyphonic-fm-synthesizer" reference platform:
 
 http://blog.kehribar.me/build/2015/12/06/polyphonic-fm-synthesizer-with-stm32f031.html
 
