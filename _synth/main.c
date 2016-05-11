@@ -23,7 +23,6 @@
 /*---------------------------------------------------------------------------*/
 #define MAX_VOICE 8 
 #define BURST_SIZE 16
-#define LOWPASS_ORDER 3
 /*---------------------------------------------------------------------------*/
 t_lfo outputLfo;
 uint8_t midibuf[2];
@@ -405,8 +404,6 @@ static void midi_noteOffMessageHandler(const uint8_t note)
 /*---------------------------------------------------------------------------*/
 static void hardware_init()
 {  
-  uint8_t i;
-  uint8_t k;
 
   I2S_InitTypeDef I2S_InitStructure;
   DMA_InitTypeDef DMA_InitStructure;
