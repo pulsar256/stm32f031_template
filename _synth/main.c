@@ -21,7 +21,7 @@
 #include "soft_uart.h"
 #include "systick_delay.h"
 /*---------------------------------------------------------------------------*/
-#define MAX_VOICE 8 
+#define MAX_VOICE 12
 #define BURST_SIZE 16
 /*---------------------------------------------------------------------------*/
 t_lfo outputLfo;
