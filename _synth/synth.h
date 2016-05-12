@@ -41,7 +41,8 @@ typedef struct t_key {
   uint16_t freqMod;  
   uint16_t phaseCounterTone;  
   uint16_t phaseCounterMod;
-  uint16_t phaseCounterFm;     
+  uint16_t phaseCounterFm;
+  uint32_t note_age; // lower == older
   t_envelope fmEnvelope;
   t_envelope modEnvelope;
   t_envelope ampEnvelope;  
