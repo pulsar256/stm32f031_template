@@ -51,7 +51,7 @@ static void midi_controlMessageHandler(const uint8_t id, const uint8_t data);
 static void midi_noteOnMessageHandler(const uint8_t note,const uint8_t velocity);
 static int16_t envelope_iterate(t_envelope* env, const t_envSetting* setting, const uint16_t maxVal);
 static int32_t fm_iterate(t_key* key, const int16_t depth_fm, const uint16_t depth_amp, const uint16_t depth_mod);
-static inline int16_t find_free_note();
+static inline uint8_t find_free_note();
 
 /*---------------------------------------------------------------------------*/
 int main(void)
@@ -373,7 +373,7 @@ static void midi_noteOnMessageHandler(const uint8_t note,const uint8_t velocity)
   {
     uint8_t k = find_free_note();
 
-    if(k >=0)
+    if(k != 0xff)
     {
       voice[k].freqTone = noteToFreq[note - 21];
       voice[k].freqMod = S16S16MulShift8(voice[k].freqTone, g_modulationIndex);
@@ -408,18 +408,20 @@ static void midi_noteOffMessageHandler(const uint8_t note)
  * Returns the array index of the next available, free node or -1 if all
  * voices are busy.
  */
-static inline int16_t find_free_note()
+static inline uint8_t find_free_note()
 {
-  int16_t k = 0;
+  uint8_t k = 0;
+  uint8_t ret = 0xff;
 
   // first, try to use true free slot
   for (k = 0; k < MAX_VOICE; ++k)
     if((voice[k].lastnote == 0) && (voice[k].noteState == NOTE_SILENT))
       return k;
 
-  // fallback to the oldest decaying note
+  // fallback to the oldest decaying note. and yes, we could rebase the age or
+  // accept MAX_VOICE glitches every 0xffffffff notes.
   uint32_t age = 0xffffffff;
-  int16_t ret = -1;
+
   for (k = 0; k < MAX_VOICE; ++k)
   {
     if((voice[k].noteState == NOTE_DECAY))
